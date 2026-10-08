@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f4ef">
+<title>서울 이동 플래너</title>
+<style>
+:root{--ink:#202b37;--muted:#73808c;--paper:#f6f4ef;--card:#fff;--line:#e7e6e1;--blue:#315fda;--pale:#edf2ff;--shadow:0 12px 36px #2834490d}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:900px;margin:auto;padding:36px 22px 60px}.eyebrow{font-size:12px;font-weight:750;letter-spacing:.12em;color:var(--blue)}h1{font-size:clamp(28px,5vw,42px);letter-spacing:-.05em;margin:10px 0 8px}.intro{margin:0;color:var(--muted);line-height:1.65}.section-title{font-size:17px;margin:29px 0 12px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.option{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;text-align:left;cursor:pointer;color:var(--ink);transition:.18s}.option:hover{transform:translateY(-2px);box-shadow:var(--shadow)}.option.active{background:var(--pale);border:2px solid var(--blue);padding:14px}.emoji{font-size:25px;display:block;margin-bottom:9px}.option strong{font-size:15px}.option small{display:block;color:var(--muted);font-size:12px;margin-top:4px}.layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px;margin-top:20px}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}.panel h2{font-size:17px;margin:0 0 16px}.checks{display:grid;gap:12px}.check{display:flex;gap:10px;font-size:14px;line-height:1.45}.check input{accent-color:var(--blue);width:17px;height:17px;margin:1px 0 0}.check span{flex:1}.progress{font-size:12px;color:var(--muted);margin:13px 0 0}.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:grid;gap:7px}.field.wide{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#586572}.field input{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 13px;font:inherit;color:var(--ink)}.field input:focus{outline:3px solid #315fda22;border-color:var(--blue)}.hint{font-size:11px;color:var(--muted);line-height:1.5}.result{margin-top:16px;background:var(--ink);color:#fff;border-radius:18px;padding:20px 22px}.result-label{font-size:12px;color:#c6d0db}.result-time{font-size:clamp(34px,6vw,46px);font-weight:780;letter-spacing:-.05em;margin:4px 0}.detail{font-size:13px;color:#d2d9e1;line-height:1.7}.warning{margin-top:8px;color:#ffd78a;font-size:12px;line-height:1.5}.reset{float:right;border:0;background:none;color:var(--blue);font:inherit;font-weight:650;cursor:pointer}.footer{font-size:11px;line-height:1.6;color:var(--muted);margin-top:13px}@media(max-width:680px){.wrap{padding:27px 16px 44px}.layout{grid-template-columns:1fr}.panel{padding:19px}}@media(max-width:420px){.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="eyebrow">SOLO SEOUL TRIP</div><h1>서울역에서 몇 시에 출발할까?</h1><p class="intro">기차에서 내린 뒤 목적지까지 갈 방법을 고르세요. 도착해야 하는 시간과 이동 시간, 여유 시간을 바탕으로 서울역 출발 시각을 계산해요.</p>
+<h2 class="section-title">이동 방법을 선택해주세요</h2><div class="grid" id="options" aria-label="이동 방법 선택"></div>
+<div class="layout"><section class="panel"><h2 id="listTitle">준비물 체크</h2><div class="checks" id="checks"></div><p class="progress" id="progress" aria-live="polite"></p></section>
+<section class="panel"><h2>시간을 입력해주세요 <button class="reset" id="reset">초기화</button></h2><div class="fields">
+<div class="field wide"><label for="arrival">목적지에 도착해야 하는 시간</label><input id="arrival" type="time" value="14:00"></div>
+<div class="field"><label for="travel">이동 시간 (분)</label><input id="travel" type="number" min="0" max="1440" value="40" inputmode="numeric"></div>
+<div class="field"><label for="buffer">여유 시간 (분)</label><input id="buffer" type="number" min="0" max="1440" value="20" inputmode="numeric"></div>
+<div class="field wide"><span class="hint">기차가 서울역에 도착한 뒤, 이 시각에 맞춰 목적지로 출발하면 돼요. 이동 시간은 선택한 교통수단의 예상 소요 시간을 입력하세요.</span></div></div>
+<div class="result" aria-live="polite"><div class="result-label">서울역에서 출발할 시간</div><div class="result-time" id="result">13:00</div><div class="detail" id="detail"></div><div class="warning" id="warning"></div></div>
+<div class="footer">계산식: 목적지 도착 시각 − 이동 시간 − 여유 시간<br>기차 도착 시각보다 계산된 출발 시각이 빠르면 기차 도착 시간을 확인해 주세요.</div></section></div>
+</main><script>
+const ways=[
+{id:'walk',icon:'🚶',name:'걸어가기',sub:'가까운 목적지',items:['목적지까지 도보 경로 확인','편한 신발 착용','날씨 확인·우산 챙기기','휴대폰 배터리 확인']},
+{id:'bus',icon:'🚌',name:'버스 타기',sub:'노선·정류장 이동',items:['버스 번호와 정류장 확인','교통카드 잔액 확인','하차 정류장과 환승 확인','실시간 도착 정보 확인']},
+{id:'car',icon:'🚗',name:'자차로 가기',sub:'운전·주차',items:['차량 키와 운전면허증','목적지 주차 가능 여부 확인','내비게이션 목적지 설정','교통 상황과 주유량 확인']},
+{id:'subway',icon:'🚇',name:'지하철 타기',sub:'빠르고 편리하게',items:['지하철 노선과 환승역 확인','교통카드 잔액 확인','출구 번호 확인','막차·운행 정보 확인']},
+{id:'taxi',icon:'🚕',name:'택시 타기',sub:'문 앞까지 이동',items:['택시 승차 위치 확인','목적지 주소 준비','호출 앱·결제 수단 확인','교통 상황 확인']},
+{id:'mix',icon:'🧭',name:'여러 방법 조합',sub:'상황에 맞춰 이동',items:['전체 경로와 환승 순서 확인','교통카드·결제 수단 준비','마지막 도보 구간 확인','대체 경로 하나 저장']}
+];let selected='walk';const options=document.querySelector('#options'),checks=document.querySelector('#checks');
+function showOptions(){options.innerHTML=ways.map(w=>`<button class="option ${w.id===selected?'active':''}" data-id="${w.id}" aria-pressed="${w.id===selected}"><span class="emoji">${w.icon}</span><strong>${w.name}</strong><small>${w.sub}</small></button>`).join('');options.querySelectorAll('button').forEach(b=>b.onclick=()=>{selected=b.dataset.id;showOptions();showChecks()})}
+function showChecks(){const w=ways.find(x=>x.id===selected);document.querySelector('#listTitle').textContent=`${w.name} 준비물 체크`;checks.innerHTML=w.items.map(x=>`<label class="check"><input type="checkbox"><span>${x}</span></label>`).join('');checks.querySelectorAll('input').forEach(x=>x.onchange=count);count()}
+function count(){const n=checks.querySelectorAll('input').length,d=checks.querySelectorAll('input:checked').length;document.querySelector('#progress').textContent=`${d}/${n}개 확인했어요`}
+function calculate(){const val=document.querySelector('#arrival').value;if(!val){document.querySelector('#result').textContent='시간을 선택해 주세요';return}const [h,m]=val.split(':').map(Number),travel=Math.max(0,Math.min(1440,Number(document.querySelector('#travel').value)||0)),buffer=Math.max(0,Math.min(1440,Number(document.querySelector('#buffer').value)||0)),raw=h*60+m-travel-buffer,mins=(raw+1440)%1440;document.querySelector('#result').textContent=`${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`;document.querySelector('#detail').innerHTML=`<b>${val}</b> 도착 − 이동 ${travel}분 − 여유 ${buffer}분`;document.querySelector('#warning').textContent=raw<0?'계산된 출발 시각은 전날이에요. 도착 시간을 다시 확인해 주세요.':''}
+document.querySelectorAll('#arrival,#travel,#buffer').forEach(x=>x.addEventListener('input',calculate));document.querySelector('#reset').onclick=()=>{document.querySelector('#arrival').value='14:00';document.querySelector('#travel').value='40';document.querySelector('#buffer').value='20';showChecks();calculate()};showOptions();showChecks();calculate();
+</script></body></html>
